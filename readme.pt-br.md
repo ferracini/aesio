@@ -1,5 +1,9 @@
 # AESIO API
 
+<p align="center">
+  <a href="https://github.com/ferracini/AESIO">Inglês</a> | <span>Português do Brasil</span>
+</p>
+
 AESIO é uma API de implementação do Advanced Encryption Standard (AES) escrita em C e destinada à criptografia e descriptografia de arquivos e dados brutos.
 
 ## Modos de operação
