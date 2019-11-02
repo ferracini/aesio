@@ -4,9 +4,9 @@
 #define SRCFILENAME		"test.txt"					/* File name of the file to be encrypted.		*/
 #define ENCFILENAME		"test_enc.txt"				/* File name of encrypted file.					*/
 #define DECFILENAME		"test_dec.txt"				/* File name of decrypted file.					*/
-#define SRCPATH			"assets/" SRCFILENAME		/* Path of the source file.						*/
-#define ENCPATH			"assets/" ENCFILENAME		/* Path of the encoded file.					*/
-#define DECPATH			"assets/" DECFILENAME		/* Path of the decoded file.					*/
+#define SRCPATH			"../assets/" SRCFILENAME	/* Path of the source file.						*/
+#define ENCPATH			"../assets/" ENCFILENAME	/* Path of the encoded file.					*/
+#define DECPATH			"../assets/" DECFILENAME	/* Path of the decoded file.					*/
 #define PASSWORD		"thisismypassword"			/* User password.								*/
 
 void CryptFileTest()
