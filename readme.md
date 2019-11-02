@@ -1,7 +1,7 @@
 # AESIO API
 
 <p align="center">
-  <span>English</span> | <a href="https://github.com/ferracini/readme.pt-br.md">Brazilian Portuguese</a>
+  <span>English</span> | <a href="https://github.com/ferracini/AESIO/blob/master/readme.pt-br.md">Brazilian Portuguese</a>
 </p>
 
 AESIO API is an implementation written in C of the Advanced Encryption Standard (AES) for encryption and decryption of files and raw data.
