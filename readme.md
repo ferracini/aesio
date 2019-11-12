@@ -270,6 +270,8 @@ See the `/src/tests.c` file for more examples.
 
 ## License
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 > Copyright (c) 2019 Diego Ferracini Bando
 > 
 > Permission is hereby granted, free of charge, to any person obtaining a copy
