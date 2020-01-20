@@ -3,14 +3,14 @@
 #include <stdio.h>
 #include "helper.h"
 
-#define AES_128_NK					4U		/* AES-128 key schedule constant	*/
-#define AES_128_ROUND_COUNT			10		/* AES-128 round count.				*/
-#define AES_192_NK					6U		/* AES-192 key schedule constant.	*/
-#define AES_192_ROUND_COUNT			12		/* AES-192 round count.				*/
-#define AES_256_NK					8U		/* AES-256 key schedule constant.	*/
-#define AES_256_ROUND_COUNT			14		/* AES-256 round count.				*/
+#define AES_128_NK		4U		/* AES-128 key schedule constant.	*/
+#define AES_128_ROUND_COUNT	10		/* AES-128 round count.			*/
+#define AES_192_NK		6U		/* AES-192 key schedule constant.	*/
+#define AES_192_ROUND_COUNT	12		/* AES-192 round count.			*/
+#define AES_256_NK		8U		/* AES-256 key schedule constant.	*/
+#define AES_256_ROUND_COUNT	14		/* AES-256 round count.			*/
 
-#define SBOX_DIM					0x00F	/* SBOX dimension.					*/
+#define SBOX_DIM		0x00F		/* SBOX dimension.			*/
 
 static const uint8_t sbox[256] = 
 {
