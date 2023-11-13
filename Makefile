@@ -14,19 +14,19 @@ CFLAGS=-pedantic -Wall -O2 -mpclmul -msse2
 
 # Link the object files into a binary
 $(ODIR)/%.o: $(SRCDIR)/%.c $(DEPS)
-	@mkdir -p $(BINDIR)
-	@mkdir -p $(ODIR)
-	$(CC) -c -o $@ $< $(CFLAGS)
+  @mkdir -p $(BINDIR)
+  @mkdir -p $(ODIR)
+  $(CC) -c -o $@ $< $(CFLAGS)
 
 # Compile the source files into object files
 $(BINDIR)/aesio: $(OBJ)
-	$(CC) -o $@ $^ $(CFLAGS)
+  $(CC) -o $@ $^ $(CFLAGS)
 
 .PHONY: clean
 
 clean:
-	rm -f $(ODIR)/*.o
+  rm -f $(ODIR)/*.o
 
 cleanall:
-	rm -f $(BINDIR)/aesio
-	rm -f $(ODIR)/*.o
+  rm -f $(BINDIR)/aesio
+  rm -f $(ODIR)/*.o

@@ -56,14 +56,14 @@ No padding is applied  to the message blocks in ECB and CBC modes, instead CTS m
  * AesioEncryptFileStream is an equivalent implementation that does not use malloc.
  */
 AesioCode AesioEncryptFile(
-	const char* destPath,	/* Destination path.																*/
-	const char* srcPath,	/* Source path.																			*/
-	const char* pwd,			/* User password.																		*/	
-	const size_t pwdLen,	/* Password length.																	*/
-	uint32_t* subKeys,		/* Key schedule pointer.														*/
-	uint8_t* ad,					/* Additional data for GCM mode.										*/
-	const uint64_t adSz,	/* Additional data size, in bytes.									*/
-	const int moFlags);		/* AESIO option bit flags.													*/	
+  const char* destPath, /* Destination path.                                */
+  const char* srcPath,  /* Source path.                                     */
+  const char* pwd,      /* User password.                                   */  
+  const size_t pwdLen,  /* Password length.                                 */
+  uint32_t* subKeys,    /* Key schedule pointer.                            */
+  uint8_t* ad,          /* Additional data for GCM mode.                    */
+  const uint64_t adSz,  /* Additional data size, in bytes.                  */
+  const int moFlags);   /* AESIO option bit flags.                          */  
 
 /* Encrypts a file. 
  *
@@ -74,14 +74,14 @@ AesioCode AesioEncryptFile(
  * All input and output operations are performed through streams.
 */
 AesioCode AesioEncryptFileStream(
-	const char* destPath,	/* Destination path.																*/
-	const char* srcPath,	/* Source path.																			*/
-	const char* pwd,			/* User password.																		*/	
-	const size_t pwdLen,	/* Password length.																	*/
-	uint32_t* subKeys,		/* Key schedule pointer.														*/
-	uint8_t* ad,					/* Additional data for GCM mode.										*/
-	const uint64_t adSz,	/* Additional data size, in bytes.									*/
-	const int moFlags);		/* AESIO option bit flags.													*/	
+  const char* destPath, /* Destination path.                                */
+  const char* srcPath,  /* Source path.                                     */
+  const char* pwd,      /* User password.                                   */  
+  const size_t pwdLen,  /* Password length.                                 */
+  uint32_t* subKeys,    /* Key schedule pointer.                            */
+  uint8_t* ad,          /* Additional data for GCM mode.                    */
+  const uint64_t adSz,  /* Additional data size, in bytes.                  */
+  const int moFlags);   /* AESIO option bit flags.                          */  
 
 /* Decrypts a file.
  *
@@ -92,13 +92,13 @@ AesioCode AesioEncryptFileStream(
  * AesioDecryptFileStream is an equivalent implementation that does not use malloc.
 */
 AesioCode AesioDecryptFile(
-	const char* destPath,	/* Destination path.																*/
-	const char* srcPath,	/* Source path.																			*/
-	const char* pwd,			/* User password.																		*/
-	const size_t pwdLen,	/* Password length.																	*/
-	uint32_t* subKeys,		/* Key schedule pointer.														*/
-	uint8_t* ad,					/* Additional data for GCM mode.										*/
-	const uint64_t adSz);	/* Additional data size, in bytes.									*/
+  const char* destPath, /* Destination path.                                */
+  const char* srcPath,  /* Source path.                                     */
+  const char* pwd,      /* User password.                                   */
+  const size_t pwdLen,  /* Password length.                                 */
+  uint32_t* subKeys,    /* Key schedule pointer.                            */
+  uint8_t* ad,          /* Additional data for GCM mode.                    */
+  const uint64_t adSz); /* Additional data size, in bytes.                  */
 
 /* Decrypts a file.
  *
@@ -109,13 +109,13 @@ AesioCode AesioDecryptFile(
  * All input and output operations are performed through streams.
 */
 AesioCode AesioDecryptFileStream(
-	const char* destPath,	/* Destination path.																*/
-	const char* srcPath,	/* Source path.																			*/
-	const char* pwd,			/* User password.																		*/
-	const size_t pwdLen,	/* Password length.																	*/
-	uint32_t* subKeys,		/* Key schedule pointer.														*/
-	uint8_t* ad,					/* Additional data for GCM mode.										*/
-	const uint64_t adSz);	/* Additional data size, in bytes.									*/
+  const char* destPath, /* Destination path.                                */
+  const char* srcPath,  /* Source path.                                     */
+  const char* pwd,      /* User password.                                   */
+  const size_t pwdLen,  /* Password length.                                 */
+  uint32_t* subKeys,    /* Key schedule pointer.                            */
+  uint8_t* ad,          /* Additional data for GCM mode.                    */
+  const uint64_t adSz); /* Additional data size, in bytes.                  */
 
 /* Encrypts raw data.
  *
@@ -127,12 +127,12 @@ AesioCode AesioDecryptFileStream(
  * If you pass a pointer to subKeys, the pwd pointer will be ignored.
 */
 AesioCode AesioEncryptData(
-	AESIO_CONTEXT* ioCtx,	/* AESIO context pointer.														*/
-	uint32_t* subKeys,		/* Key schedule pointer. 														*/
-	const char* pwd,			/* Password. Non-null terminated string.						*/
-	size_t pwdLen,				/* Password length.																	*/
-	uint8_t* ad,					/* Additional data for GCM mode.										*/
-	const uint64_t adSz);	/* Additional data size in bytes.										*/
+  AESIO_CONTEXT* ioCtx, /* AESIO context pointer.                           */
+  uint32_t* subKeys,    /* Key schedule pointer.                            */
+  const char* pwd,      /* Password. Non-null terminated string.            */
+  size_t pwdLen,        /* Password length.                                 */
+  uint8_t* ad,          /* Additional data for GCM mode.                    */
+  const uint64_t adSz); /* Additional data size in bytes.                   */
 
 /* Dencrypts raw data.
  *
@@ -144,12 +144,12 @@ AesioCode AesioEncryptData(
  * If you pass a pointer to subKeys, the pwd pointer will be ignored.
 */
 AesioCode AesioDecryptData(
-	AESIO_CONTEXT* ioCtx,	/* AESIO context pointer.														*/
-	uint32_t* subKeys,		/* Key schedule pointer. 														*/
-	const char* pwd,			/* Password. Non-null terminated string.						*/		
-	size_t pwdLen,				/* Password length.																	*/
-	uint8_t* ad,					/* Additional data (only for GCM mode).							*/		
-	const uint64_t adSz);	/* Additional data size in bytes.										*/
+  AESIO_CONTEXT* ioCtx, /* AESIO context pointer.                           */
+  uint32_t* subKeys,    /* Key schedule pointer.                            */
+  const char* pwd,      /* Password. Non-null terminated string.            */    
+  size_t pwdLen,        /* Password length.                                 */
+  uint8_t* ad,          /* Additional data (only for GCM mode).             */    
+  const uint64_t adSz); /* Additional data size in bytes.                   */
 
 /* Initializes AESIO context.
  *
@@ -160,11 +160,11 @@ AesioCode AesioDecryptData(
  * If iVec is NULL, a new initialization vector will be generated.
 */
 AesioCode AesioInit(
-	AESIO_CONTEXT* ctx, 	/* AESIO context pointer.														*/
-	uint8_t* buffer,			/* Pointer to a data buffer that contains input.		*/
-	size_t buffSz,				/* Size of the data buffer, in bytes.								*/
-	uint32_t bFlags,			/* AESIO option bit flags.													*/
-	uint32_t* iVec);			/* Pointer to a 128 bit IV.													*/
+  AESIO_CONTEXT* ctx,   /* AESIO context pointer.                           */
+  uint8_t* buffer,      /* Pointer to a data buffer that contains input.    */
+  size_t buffSz,        /* Size of the data buffer, in bytes.               */
+  uint32_t bFlags,      /* AESIO option bit flags.                          */
+  uint32_t* iVec);      /* Pointer to a 128 bit IV.                         */
 
 /* Releases AESIO context.
  *
@@ -173,8 +173,8 @@ AesioCode AesioInit(
  * before it can be sent into this function.
 */
 void ReleaseAesioContext(
-	AESIO_CONTEXT* ctx, 	/* AESIO context pointer.														*/
-	_Bool freeAesBuff); 	/* Free AES buffer memory that has been allocated.	*/
+  AESIO_CONTEXT* ctx,   /* AESIO context pointer.                           */
+  _Bool freeAesBuff);   /* Free AES buffer memory that has been allocated.  */
 
 /* Generates pseudo-random numbers for initialization vector (IV).
  *
@@ -184,7 +184,7 @@ void ReleaseAesioContext(
  * The IV pointer cannot be NULL.
 */
 AesioCode InitRandVec(
-	uint32_t* iVec );	/* Pointer to a 128 bit IV.															*/
+  uint32_t* iVec );     /* Pointer to a 128 bit IV.                         */
 
 /* Generates AES subkeys. 
  * 
@@ -194,10 +194,10 @@ AesioCode InitRandVec(
  * kBlockSize must be 16 (AES 128 bits), 24 (AES 192 bits) or 32 (AES 256 bits).
 */
 AesioCode KeySchedule(
-	uint32_t* subKeys,		/* Subkeys pointer.																	*/
-	const char* pwd,			/* Password. Non-null terminated string.						*/		
-	const size_t pwdSz,		/* Size of the password in bytes.										*/	
-	size_t kBlockSize);		/* The size of the key in bytes.										*/
+  uint32_t* subKeys,    /* Subkeys pointer.                                 */
+  const char* pwd,      /* Password. Non-null terminated string.            */    
+  const size_t pwdSz,   /* Size of the password in bytes.                   */  
+  size_t kBlockSize);   /* The size of the key in bytes.                    */
 ```
 ### Compile
 
@@ -226,21 +226,21 @@ AESIO_CONTEXT ioCtx = { 0 };
 res = AesioInit(&ioCtx, (uint8_t*)str, sizeof(str) - 1, AESIO_MO_CTR | AESIO_HM_SHA1 | AESIO_KL_128, NULL);
 if (res != AESIO_ERR_OK)
 {
-	goto cleanup;
+  goto cleanup;
 }
 
 /* Key expansion */
 re = KeySchedule(subKeys, pwd, strlen(pwd), AESIO_128_KSZ);
 if (res != AESIO_ERR_OK)
 {
-	goto cleanup;
+  goto cleanup;
 }
 
 /* Encrypts the string */
 res = AesioEncryptData(&ioCtx, subKeys, pwd, strlen(pwd), NULL, 0);
 if (res != AESIO_ERR_OK)
 {
-	goto cleanup;
+  goto cleanup;
 }
 
 /*
@@ -251,7 +251,7 @@ if (res != AESIO_ERR_OK)
 res = AesioDecryptData(&ioCtx, subKeys, pwd, strlen(pwd), NULL, 0);
 if (res != AESIO_ERR_OK)
 {
-	goto cleanup;
+  goto cleanup;
 }
 
 cleanup:
