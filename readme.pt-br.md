@@ -56,14 +56,14 @@ Nenhum preenchimento é aplicado aos blocos de mensagem nos modos ECB e CBC, ao 
  * AesioEncryptFileStream é uma implementação equivalente que não faz uso da função malloc.
  */
 AesioCode AesioEncryptFile(
-	const char* destPath,	/* Caminho de destino.					*/
-	const char* srcPath,	/* Caminho de origem.					*/
-	const char* pwd,	/* Senha do usuário. String com terminação não-nula.	*/	
-	const size_t pwdLen,	/* Comprimento da senha.				*/
-	uint32_t* subKeys,	/* Ponteiro para as subchaves.				*/
-	uint8_t* ad,		/* Dados adicionais para o modo GCM.			*/
-	const uint64_t adSz,	/* Tamanho dos dados adicionais, em bytes.		*/
-	const int moFlags);	/* Sinalizadores de bits para as configurações.		*/	
+  const char* destPath,	/* Caminho de destino.          													*/
+  const char* srcPath,  /* Caminho de origem.          														*/
+  const char* pwd,  		/* Senha do usuário. String com terminação não-nula.  		*/  
+  const size_t pwdLen,  /* Comprimento da senha.        													*/
+  uint32_t* subKeys,  	/* Ponteiro para as subchaves.        										*/
+  uint8_t* ad,    			/* Dados adicionais para o modo GCM.      								*/
+  const uint64_t adSz,  /* Tamanho dos dados adicionais, em bytes.    						*/
+  const int moFlags);  	/* Sinalizadores de bits para as configurações.    				*/  
 
 /* Criptografa um arquivo.
  *
@@ -74,14 +74,14 @@ AesioCode AesioEncryptFile(
  * Todas operações de entrada e saída são realizadas através de streams.
 */
 AesioCode AesioEncryptFileStream(
-	const char* destPath,	/* Caminho de destino.					*/
-	const char* srcPath,	/* Caminho de origem.					*/
-	const char* pwd,	/* Senha do usuário. String com terminação não-nula.	*/	
-	const size_t pwdLen,	/* Comprimento da senha.				*/
-	uint32_t* subKeys,	/* Ponteiro para as subchaves.				*/
-	uint8_t* ad,		/* Dados adicionais para o modo GCM.			*/
-	const uint64_t adSz,	/* Tamanho dos dados adicionais, em bytes.		*/
-	const int moFlags);	/* Sinalizadores de bits para as configurações.		*/	
+  const char* destPath, /* Caminho de destino.          													*/
+  const char* srcPath,  /* Caminho de origem.          														*/
+  const char* pwd,  		/* Senha do usuário. String com terminação não-nula.  		*/  
+  const size_t pwdLen,  /* Comprimento da senha.        													*/
+  uint32_t* subKeys,  	/* Ponteiro para as subchaves.        										*/
+  uint8_t* ad,    			/* Dados adicionais para o modo GCM.      								*/
+  const uint64_t adSz,  /* Tamanho dos dados adicionais, em bytes.    						*/
+  const int moFlags);  	/* Sinalizadores de bits para as configurações.    				*/  
 
 /* Descriptografa um arquivo.
  *
@@ -92,13 +92,13 @@ AesioCode AesioEncryptFileStream(
  * AesioDecryptFileStream é uma implementação equivalente que não faz uso da função malloc.
 */
 AesioCode AesioDecryptFile(
-	const char* destPath,	/* Caminho de destino.					*/
-	const char* srcPath,	/* Caminho de origem.					*/
-	const char* pwd,	/* Senha do usuário. String com terminação não-nula.	*/
-	const size_t pwdLen,	/* Comprimento da senha.				*/
-	uint32_t* subKeys,	/* Ponteiro para as subchaves.				*/
-	uint8_t* ad,		/* Dados adicionais para o modo GCM.			*/
-	const uint64_t adSz);	/* Tamanho dos dados adicionais, em bytes.		*/
+  const char* destPath, /* Caminho de destino.          													*/
+  const char* srcPath,  /* Caminho de origem.          														*/
+  const char* pwd,  		/* Senha do usuário. String com terminação não-nula.  		*/
+  const size_t pwdLen,  /* Comprimento da senha.        													*/
+  uint32_t* subKeys,  	/* Ponteiro para as subchaves.        										*/
+  uint8_t* ad,    			/* Dados adicionais para o modo GCM.      								*/
+  const uint64_t adSz); /* Tamanho dos dados adicionais, em bytes.    						*/
 
 /* Descriptografa um arquivo.
  *
@@ -109,13 +109,13 @@ AesioCode AesioDecryptFile(
  * Todas operações de entrada e saída são realizadas através de streams.
 */
 AesioCode AesioDecryptFileStream(
-	const char* destPath,	/* Caminho de destino.					*/
-	const char* srcPath,	/* Caminho de origem.					*/
-	const char* pwd,	/* Senha do usuário. String com terminação não-nula.	*/
-	const size_t pwdLen,	/* Comprimento da senha.				*/
-	uint32_t* subKeys,	/* Ponteiro para as subchaves.				*/
-	uint8_t* ad,		/* Dados adicionais para o modo GCM.			*/
-	const uint64_t adSz);	/* Tamanho dos dados adicionais, em bytes.		*/
+  const char* destPath, /* Caminho de destino.          													*/
+  const char* srcPath,  /* Caminho de origem.          														*/
+  const char* pwd,  		/* Senha do usuário. String com terminação não-nula.  		*/
+  const size_t pwdLen,  /* Comprimento da senha.        													*/
+  uint32_t* subKeys,  	/* Ponteiro para as subchaves.        										*/
+  uint8_t* ad,    			/* Dados adicionais para o modo GCM.      								*/
+  const uint64_t adSz); /* Tamanho dos dados adicionais, em bytes.    						*/
 
 /* Criptografa dados brutos.
  *
@@ -127,12 +127,12 @@ AesioCode AesioDecryptFileStream(
  * Se for passado um ponteiro para subKeys, pwd será ignorado.
 */
 AesioCode AesioEncryptData(
-	AESIO_CONTEXT* ioCtx,	/* Ponteiro para uma estrutura de contexto AESIO.	*/
-	uint32_t* subKeys,	/* Ponteiro para as subchaves. 				*/
-	const char* pwd,	/* Senha do usuário. String com terminação não-nula.	*/
-	size_t pwdLen,		/* Comprimento da senha.				*/
-	uint8_t* ad,		/* Dados adicionais para o modo GCM.			*/
-	const uint64_t adSz);	/* Tamanho dos dados adicionais, em bytes.		*/
+  AESIO_CONTEXT* ioCtx, /* Ponteiro para uma estrutura de contexto AESIO.  				*/
+  uint32_t* subKeys,  	/* Ponteiro para as subchaves.         										*/
+  const char* pwd,  		/* Senha do usuário. String com terminação não-nula.  		*/
+  size_t pwdLen,    		/* Comprimento da senha.        													*/
+  uint8_t* ad,    			/* Dados adicionais para o modo GCM.      								*/
+  const uint64_t adSz); /* Tamanho dos dados adicionais, em bytes.    						*/
 
 /* Descriptografa dados brutos.
  *
@@ -144,12 +144,12 @@ AesioCode AesioEncryptData(
  * Se for passado um ponteiro para subKeys, pwd será ignorado.
 */
 AesioCode AesioDecryptData(
-	AESIO_CONTEXT* ioCtx,	/* Ponteiro para uma estrutura de contexto AESIO.	*/
-	uint32_t* subKeys,	/* Ponteiro para as subchaves. 				*/
-	const char* pwd,	/* Senha do usuário. String com terminação não-nula.	*/		
-	size_t pwdLen,		/* Comprimento da senha.				*/
-	uint8_t* ad,		/* Dados adicionais para o modo GCM.			*/		
-	const uint64_t adSz);	/* Tamanho dos dados adicionais, em bytes.		*/
+  AESIO_CONTEXT* ioCtx, /* Ponteiro para uma estrutura de contexto AESIO.  				*/
+  uint32_t* subKeys,  	/* Ponteiro para as subchaves.         										*/
+  const char* pwd,  		/* Senha do usuário. String com terminação não-nula.  		*/    
+  size_t pwdLen,    		/* Comprimento da senha.        													*/
+  uint8_t* ad,    			/* Dados adicionais para o modo GCM.      								*/    
+  const uint64_t adSz); /* Tamanho dos dados adicionais, em bytes.    						*/
 
 /* Inicializa um contexto AESIO.
  *
@@ -160,11 +160,11 @@ AesioCode AesioDecryptData(
  * Se iVec for nulo (NULL), um novo vetor de inicialização será gerado no contexto.
 */
 AesioCode AesioInit(
-	AESIO_CONTEXT* ctx, 	/* Ponteiro para uma estrutura de contexto AESIO.	*/
-	uint8_t* buffer,	/* Ponteiro para um buffer que contém a entrada.	*/
-	size_t buffSz,		/* Tamanho do buffer, em bytes. 			*/
-	uint32_t bFlags,	/* Sinalizadores de bits para as configurações.		*/
-	uint32_t* iVec);	/* Ponteiro para um vetor de inicialização de 128 bits.	*/
+  AESIO_CONTEXT* ctx,   /* Ponteiro para uma estrutura de contexto AESIO.  				*/
+  uint8_t* buffer,  		/* Ponteiro para um buffer que contém a entrada.  				*/
+  size_t buffSz,    		/* Tamanho do buffer, em bytes.       										*/
+  uint32_t bFlags,  		/* Sinalizadores de bits para as configurações.    				*/
+  uint32_t* iVec);  		/* Ponteiro para um vetor de inicialização de 128 bits.  	*/
 
 /* Libera um contexto AESIO.
  *
@@ -173,8 +173,8 @@ AesioCode AesioInit(
  * antes de ser passada para esta função.
 */
 void ReleaseAesioContext(
-	AESIO_CONTEXT* ctx, 	/* Ponteiro para uma estrutura de contexto AESIO.	*/
-	_Bool freeAesBuff); 	/* Libera o buffer do AES alocado na memória.		*/
+  AESIO_CONTEXT* ctx,   /* Ponteiro para uma estrutura de contexto AESIO.  				*/
+  _Bool freeAesBuff);   /* Libera o buffer do AES alocado na memória.    					*/
 
 /* Gera números pseudo-aleatórios para o vetor de inicialização (IV).
  *
@@ -184,7 +184,7 @@ void ReleaseAesioContext(
  * O ponteiro do vetor de inicialização (iVec) não pode ser nulo (NULL).
 */
 AesioCode InitRandVec(
-	uint32_t* iVec );	/* Ponteiro para o vetor de inicialização de 128 bits.	*/
+  uint32_t* iVec );  		/* Ponteiro para o vetor de inicialização de 128 bits.  	*/
 
 /* Gera subchaves para o AES.
  * 
@@ -195,10 +195,10 @@ AesioCode InitRandVec(
  * O valor de kBlockSize deve ser 16 (AES-128), 24(AES-192) ou 32 (AES-256).
 */
 AesioCode KeySchedule(
-	uint32_t* subKeys,	/* Ponteiro para as subchaves.				*/
-	const char* pwd,	/* Senha do usuário. String com terminação não-nula.	*/		
-	const size_t pwdSz,	/* Tamanho da senha de usuário, em bytes.		*/	
-	size_t kBlockSize);	/* Tamanho da chave, em bytes.				*/
+  uint32_t* subKeys,  	/* Ponteiro para as subchaves.        										*/
+  const char* pwd,  		/* Senha do usuário. String com terminação não-nula.  		*/    
+  const size_t pwdSz,  	/* Tamanho da senha de usuário, em bytes.    							*/  
+  size_t kBlockSize);  	/* Tamanho da chave, em bytes.        										*/
 ```
 ### Compilar
 
@@ -227,21 +227,21 @@ AESIO_CONTEXT ioCtx = { 0 };
 res = AesioInit(&ioCtx, (uint8_t*)str, sizeof(str) - 1, AESIO_MO_CTR | AESIO_HM_SHA1 | AESIO_KL_128, NULL);
 if (res != AESIO_ERR_OK)
 {
-	goto cleanup;
+  goto cleanup;
 }
 
 /* Expansão de chaves */
 re = KeySchedule(subKeys, pwd, strlen(pwd), AESIO_128_KSZ);
 if (res != AESIO_ERR_OK)
 {
-	goto cleanup;
+  goto cleanup;
 }
 
 /* Criptografa a string */
 res = AesioEncryptData(&ioCtx, subKeys, pwd, strlen(pwd), NULL, 0);
 if (res != AESIO_ERR_OK)
 {
-	goto cleanup;
+  goto cleanup;
 }
 
 /*
@@ -252,7 +252,7 @@ if (res != AESIO_ERR_OK)
 res = AesioDecryptData(&ioCtx, subKeys, pwd, strlen(pwd), NULL, 0);
 if (res != AESIO_ERR_OK)
 {
-	goto cleanup;
+  goto cleanup;
 }
 
 cleanup:
