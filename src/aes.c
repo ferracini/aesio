@@ -10,7 +10,7 @@
 #define AES_256_NK            8U    /* AES-256 key schedule constant.   */
 #define AES_256_ROUND_COUNT   14    /* AES-256 round count.             */
 
-#define SBOX_DIM              0x16  /* SBOX dimension.                  */
+#define SBOX_DIM              16    /* SBOX dimension.                  */
 
 static const uint8_t sbox[256] = 
 {
