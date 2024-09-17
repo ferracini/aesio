@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AESIO_H
+#define AESIO_H
 #include "aesom.h"
 #include "aesiofver.h"
 #include "sha1.h"
@@ -385,3 +386,5 @@ void GenHmacStream(
   FILE* pFile,          /* Pointer to an opened file containing the ciphertext. */
   AESIO_CONTEXT* ctx,   /* AESIO context pointer.                               */
   uint32_t* subKeys);   /* Subkeys pointer.                                     */
+  #endif
+  

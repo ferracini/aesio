@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HELPER_H
+#define HELPER_H
 #include <stdlib.h>
 #include <limits.h>
 
@@ -25,4 +26,5 @@
 #endif
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr)         (sizeof(arr) / sizeof((arr)[0]))
+#endif
 #endif

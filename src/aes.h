@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AES_H
+#define AES_H
 #include <stdint.h>
 #include <limits.h>
 #ifdef __GNUC__
@@ -67,3 +68,5 @@ void AesDecryptBlock(
   uint32_t* subKeys, 
   const size_t subKeysCount, 
   const size_t nRounds);
+  #endif
+  
