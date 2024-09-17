@@ -420,7 +420,11 @@ AesioCode AesioReadFile(
     return AESIO_ERR_INVALIDPARAM;
   }
 
+#if defined(_MSC_VER)
+  fopen_s(&file, path, "rb");
+#else
   file = fopen(path, "rb");
+#endif
 
   if (!file)
   {
@@ -544,6 +548,92 @@ AesioCode AesioReadFile(
   return AESIO_ERR_OK;
 }
 
+/* Reads a buffer into a buffer. */
+AesioCode AesioReadBuffer(
+  AESIO_FILEINFO* fh,
+  _Bool isEncrypted,
+  const char* pBuffer,
+  const size_t szBufferSize)
+{
+  size_t szAux;
+
+  if (pBuffer == NULL || fh == NULL)
+  {
+    return AESIO_ERR_INVALIDPARAM;
+  }
+
+  szAux = 0;
+
+  if (isEncrypted)
+  {
+    if(szAux + sizeof(AESIO_INFOHEADER) > szBufferSize)
+    {
+      return AESIO_ERR_INVALIDINPUT;
+    }
+    
+    memcpy(&fh->ih, &pBuffer[szAux], sizeof(AESIO_INFOHEADER));
+    szAux += sizeof(AESIO_INFOHEADER);
+    if(szAux + GETIVECSIZE(fh->ih.bFlags) + GETMACSIZE(fh->ih.bFlags) > szBufferSize)
+    {
+      return AESIO_ERR_INVALIDINPUT;
+    }
+
+    if (!ISSIGVALID(fh->ih.signature))
+    {
+      return AESIO_ERR_INVALIDFILESIGNATURE;
+    }    
+    
+    if (FVERCMP(fh->ih.version) > 0)
+    {
+      /*
+       * Reserved for future use. 
+       * We will provide backward compatibility here. 
+       * For now, just returns an error message.
+       */
+      return AESIO_ERR_INVALIDFILEVERSION;
+    }
+    else if (FVERCMP(fh->ih.version) < 0)
+    {
+      return AESIO_ERR_INVALIDFILEVERSION;
+    }
+
+    fh->mCtx.size = GETMACSIZE(fh->ih.bFlags);
+
+    memset(fh->mCtx.buff8, 0, sizeof(fh->mCtx.buff8));
+    memcpy(fh->mCtx.buff8, &pBuffer[szAux], fh->mCtx.size);
+    szAux += fh->mCtx.size;
+
+    if ((fh->ih.bFlags & AESIO_MO_ECB) == 0)
+    {      
+      memcpy(fh->iVec, &pBuffer[szAux], 4 * sizeof(uint32_t));
+      szAux +=  4 * sizeof(uint32_t);
+    }
+    
+    fh->cSz = szBufferSize - GETFILEHEADERSIZE(fh->ih.bFlags);    
+    if (!(fh->cBuff = malloc(fh->cSz)))
+    {
+      fh->cSz = 0;
+      return AESIO_ERR_OUTOFMEMORY;
+    }
+
+    memcpy(fh->cBuff, &pBuffer[szAux], fh->cSz);
+    szAux += fh->cSz;       
+  }
+  else
+  {
+    if (!(fh->cBuff = malloc(szBufferSize)))
+    {
+      return AESIO_ERR_OUTOFMEMORY;
+    }
+
+    memcpy(fh->cBuff, pBuffer, szBufferSize);
+    szAux += szBufferSize;
+    fh->cSz = szBufferSize;
+  }
+
+  return AESIO_ERR_OK;
+}
+
 /* Opens a file. */
 AesioCode AesioOpenFile(
   AESIO_CONTEXT* ioCtx,
@@ -551,7 +641,12 @@ AesioCode AesioOpenFile(
   FILE** pFile,
   _Bool offsetted)
 {
-  if (!(*pFile = fopen(path, "wb+")))
+#if defined(_MSC_VER)
+  fopen_s(pFile, path, "wb+");
+#else
+  *pFile = fopen(path, "wb+");
+#endif
+  if ((*pFile) == NULL)
   {
     return AESIO_ERR_WRITEFAILED;
   }
@@ -615,6 +710,48 @@ AesioCode AesioWriteFileHeader(
   return AESIO_ERR_OK;
 }
 
+/* Writes the file header. */
+char* AesioWriteBufferHeader(
+  char* pBuffer,
+  const size_t szBufferSize,
+  AESIO_CONTEXT* ioCtx)
+{
+  if (pBuffer == NULL || ioCtx == NULL)
+  {
+    return NULL;
+  }
+
+  AESIO_INFOHEADER fh;
+  size_t szAux;
+  size_t szInitVecSize;
+
+  fh.bFlags = ioCtx->bFlags;
+  fh.version = AESIO_FILEVERSION;
+  memcpy(fh.signature, AESIO_FSIG, AESIO_SIGNATURESIZE);
+  
+  szAux = 0;
+  szInitVecSize = (ioCtx->bFlags & AESIO_MO_ECB) == 0 ? 4 * sizeof(uint32_t) : 0;
+    
+  if(sizeof(AESIO_INFOHEADER) + ioCtx->mCtx.size + szInitVecSize > szBufferSize)
+  {
+    return NULL;
+  }
+  
+  memcpy(&pBuffer[szAux], &fh, sizeof(AESIO_INFOHEADER));
+  szAux += sizeof(AESIO_INFOHEADER);
+
+  memcpy(&pBuffer[szAux], ioCtx->mCtx.buff8, ioCtx->mCtx.size);
+  szAux += ioCtx->mCtx.size;
+
+  if (szInitVecSize > 0)
+  {
+    memcpy(&pBuffer[szAux], ioCtx->iVec, szInitVecSize);
+    szAux += szInitVecSize;
+  }
+
+  return &pBuffer[szAux];
+}
+
 /* Writes the data contained in the AESIO context into a file. */
 AesioCode AesioWriteFile(
   AESIO_CONTEXT* ioCtx,
@@ -628,7 +765,12 @@ AesioCode AesioWriteFile(
     return AESIO_ERR_INVALIDPARAM;
   }
 
-  if (!(file = fopen(path, "wb+")))
+#if defined(_MSC_VER)
+  fopen_s(&file, path, "wb+");
+#else
+  file = fopen(path, "wb+");
+#endif
+  if (file == NULL)
   {
     return AESIO_ERR_WRITEFAILED;
   }
@@ -645,6 +787,48 @@ AesioCode AesioWriteFile(
   }
 
   fclose(file);
+  return AESIO_ERR_OK;
+}
+
+/* Writes the data contained in the AESIO context into a buffer. */
+AesioCode AesioWriteBuffer(
+  AESIO_CONTEXT* ioCtx,
+  _Bool isEncrypted,
+  char** ppBufer,
+  size_t* pSzBufferSize)
+{
+  char* pBuffer;
+  char* pAux;
+  size_t szHeaderSize;
+  size_t szBufferSize;
+
+  if (ioCtx == NULL || ppBufer == NULL || pSzBufferSize == NULL)
+  {
+    return AESIO_ERR_INVALIDPARAM;
+  }
+
+  *ppBufer = NULL;
+  *pSzBufferSize = 0;
+    
+  szHeaderSize = isEncrypted ? GETFILEHEADERSIZE(ioCtx->bFlags) : 0;
+  szBufferSize = szHeaderSize + ioCtx->ctx.ptcSz;
+  pBuffer = malloc(szBufferSize);
+  if(pBuffer == NULL)
+  {
+    return AESIO_ERR_OUTOFMEMORY;
+  }
+
+  pAux = pBuffer;
+
+  if (isEncrypted)
+  {
+    pAux = AesioWriteBufferHeader(pBuffer, szBufferSize, ioCtx);
+  }
+
+  memcpy(pAux, ioCtx->ctx.buff8, ioCtx->ctx.ptcSz);
+  *ppBufer = pBuffer;
+  *pSzBufferSize = szBufferSize;
+
   return AESIO_ERR_OK;
 }
 
@@ -703,6 +887,74 @@ AesioCode AesioEncryptFile(
 
   /* Writes the buffer into the file */
   res = AesioWriteFile(&ioCtx, TRUE, destPath);
+
+cleanup:
+  /* Wipe local variables */
+  memset(sk, 0, AES_MAX_SUBKEYS_SIZE);
+  /* Release AESIO context */
+  ReleaseAesioContext(&ioCtx, TRUE);
+  return res;
+}
+
+AesioCode AesioEncryptFileToBuffer(
+  char** ppBuffer,
+  size_t* pSzBufferSize,
+  const char* srcPath, 
+  const char* pwd, 
+  const size_t pwdLen,
+  uint32_t* subKeys, 
+  const uint8_t* aad,
+  const uint64_t aadSz,
+  const int moFlags)
+{
+  if (ppBuffer == NULL || pSzBufferSize == NULL || srcPath == NULL || pwd == NULL)
+  {
+    return AESIO_ERR_INVALIDPARAM;
+  }
+
+  AESIO_CONTEXT ioCtx = { 0 };
+
+  AesioCode res;  
+  AESIO_FILEINFO fh;
+  uint32_t sk[AES_MAX_SUBKEYS_COUNT];  
+
+  *ppBuffer = NULL;
+  *pSzBufferSize = 0;
+
+  /* Generate subkeys */
+  if (!subKeys)
+  {
+    subKeys = sk;
+    if ((res = KeySchedule(subKeys, pwd, pwdLen, GETKEYBLOCKSIZE(moFlags))) != AESIO_ERR_OK)
+    {
+      goto cleanup;
+    }
+  }
+
+  if ((res = AesioReadFile(&fh, FALSE, srcPath, NULL)) != AESIO_ERR_OK)
+  {
+    goto cleanup;
+  }  
+
+  if ((res = AesioInit(&ioCtx, fh.cBuff, fh.cSz, moFlags, NULL)) != AESIO_ERR_OK)
+  {
+    goto cleanup;
+  }
+
+  /* Encrypts the buffer */
+  if ((res = AesEncrypt(&ioCtx, subKeys, ioCtx.mCtx.buff32, aad, aadSz)) != AESIO_ERR_OK)
+  {
+    goto cleanup;
+  }
+
+  if (((ioCtx.bFlags & AESIO_MO_GCM) == 0) && ((ioCtx.bFlags & AESIO_BMASK_HM) != 0))
+  {
+    /* HMAC creation */
+    GenHmac(&ioCtx, subKeys);
+  }
+
+  /* Writes the encrypted data into the buffer */
+  res = AesioWriteBuffer(&ioCtx, TRUE, ppBuffer, pSzBufferSize);
 
 cleanup:
   /* Wipe local variables */
@@ -1014,6 +1266,137 @@ cleanup:
   return res;
 }
 
+AesioCode AesioEncryptDataToFile(
+  const char* destPath,
+  const char* pData,
+  const size_t szData,
+  const char* pwd, 
+  const size_t pwdLen,
+  uint32_t* subKeys, 
+  uint8_t* aad,
+  const uint64_t aadSz,
+  const int moFlags)
+{
+  if (destPath == NULL || pData == NULL || szData == 0 || pwd == NULL)
+  {
+    return AESIO_ERR_INVALIDPARAM;
+  }
+
+  AESIO_CONTEXT ioCtx = { 0 };
+
+  AesioCode res;  
+  AESIO_FILEINFO fh;
+  uint32_t sk[AES_MAX_SUBKEYS_COUNT];  
+
+  /* Generate subkeys */
+  if (!subKeys)
+  {
+    subKeys = sk;
+    if ((res = KeySchedule(subKeys, pwd, pwdLen, GETKEYBLOCKSIZE(moFlags))) != AESIO_ERR_OK)
+    {
+      goto cleanup;
+    }
+  }
+
+  if ((res = AesioReadBuffer(&fh, FALSE, pData, szData)) != AESIO_ERR_OK)
+  {
+    goto cleanup;
+  }  
+
+  if ((res = AesioInit(&ioCtx, fh.cBuff, fh.cSz, moFlags, NULL)) != AESIO_ERR_OK)
+  {
+    goto cleanup;
+  }
+
+  /* Encrypts the buffer */
+  if ((res = AesEncrypt(&ioCtx, subKeys, ioCtx.mCtx.buff32, aad, aadSz)) != AESIO_ERR_OK)
+  {
+    goto cleanup;
+  }
+
+  if (((ioCtx.bFlags & AESIO_MO_GCM) == 0) && ((ioCtx.bFlags & AESIO_BMASK_HM) != 0))
+  {
+    /* HMAC creation */
+    GenHmac(&ioCtx, subKeys);
+  }
+
+  /* Writes the buffer into the file */
+  res = AesioWriteFile(&ioCtx, TRUE, destPath);
+
+cleanup:
+  /* Wipe local variables */
+  memset(sk, 0, AES_MAX_SUBKEYS_SIZE);
+  /* Release AESIO context */
+  ReleaseAesioContext(&ioCtx, TRUE);
+  return res;
+}
+
+AesioCode AesioEncryptDataToBuffer(
+  char** ppBuffer,
+  size_t* pSzBuffer,
+  const char* pData,
+  const size_t szData,
+  const char* pwd, 
+  const size_t pwdLen,
+  uint32_t* subKeys, 
+  uint8_t* aad,
+  const uint64_t aadSz,
+  const int moFlags)
+{
+  if (ppBuffer == NULL || pSzBuffer == NULL || pData == NULL || szData == 0 || pwd == NULL)
+  {
+    return AESIO_ERR_INVALIDPARAM;
+  }
+
+  AESIO_CONTEXT ioCtx = { 0 };
+
+  AesioCode res;  
+  AESIO_FILEINFO fh;
+  uint32_t sk[AES_MAX_SUBKEYS_COUNT];  
+
+  /* Generate subkeys */
+  if (!subKeys)
+  {
+    subKeys = sk;
+    if ((res = KeySchedule(subKeys, pwd, pwdLen, GETKEYBLOCKSIZE(moFlags))) != AESIO_ERR_OK)
+    {
+      goto cleanup;
+    }
+  }
+
+  if ((res = AesioReadBuffer(&fh, FALSE, pData, szData)) != AESIO_ERR_OK)
+  {
+    goto cleanup;
+  }  
+
+  if ((res = AesioInit(&ioCtx, fh.cBuff, fh.cSz, moFlags, NULL)) != AESIO_ERR_OK)
+  {
+    goto cleanup;
+  }
+
+  /* Encrypts the buffer */
+  if ((res = AesEncrypt(&ioCtx, subKeys, ioCtx.mCtx.buff32, aad, aadSz)) != AESIO_ERR_OK)
+  {
+    goto cleanup;
+  }
+
+  if (((ioCtx.bFlags & AESIO_MO_GCM) == 0) && ((ioCtx.bFlags & AESIO_BMASK_HM) != 0))
+  {
+    /* HMAC creation */
+    GenHmac(&ioCtx, subKeys);
+  }
+
+  /* Writes the buffer into the file */
+  res = AesioWriteBuffer(&ioCtx, TRUE, ppBuffer, pSzBuffer);
+
+cleanup:
+  /* Wipe local variables */
+  memset(sk, 0, AES_MAX_SUBKEYS_SIZE);
+  /* Release AESIO context */
+  ReleaseAesioContext(&ioCtx, TRUE);
+  return res;
+}
+
 AesioCode AesioDecryptData(
   AESIO_CONTEXT* ioCtx, 
   uint32_t* subKeys,
@@ -1063,6 +1446,79 @@ AesioCode AesioDecryptData(
 cleanup:
   /* Wipe local variables */
   memset(sk, 0, AES_MAX_SUBKEYS_SIZE);
+  return res;
+}
+
+AesioCode AesioDecryptDataToFile(
+  const char* destPath,
+  const char* pData,
+  const size_t szData,
+  const char* pwd, 
+  const size_t pwdLen,
+  uint32_t* subKeys, 
+  uint8_t* aad, 
+  const uint64_t aadSz)
+{
+  if (destPath == NULL || pData == NULL || pwd == NULL)
+  {
+    return AESIO_ERR_INVALIDPARAM;
+  }
+
+  AESIO_CONTEXT ioCtx = { 0 };
+
+  AesioCode res;    
+  AESIO_FILEINFO fh;
+  uint32_t sk[AES_MAX_SUBKEYS_COUNT];  
+
+  /* File reading process */
+  if ((res = AesioReadBuffer(&fh, TRUE, pData, szData)) != AESIO_ERR_OK)
+  {
+    goto cleanup;
+  }
+
+  if ((res = AesioInit(&ioCtx, fh.cBuff, fh.cSz, fh.ih.bFlags, fh.iVec)) != AESIO_ERR_OK)
+  {
+    goto cleanup;
+  }
+
+  /* Key schedule */
+  if (!subKeys)
+  {
+    subKeys = sk;
+    if ((res = KeySchedule(subKeys, pwd, pwdLen, ioCtx.ctx.keySize)) != AESIO_ERR_OK)
+    {
+      goto cleanup;
+    }
+  }
+
+  if (!(ioCtx.bFlags & AESIO_MO_GCM) && (ioCtx.bFlags & AESIO_BMASK_HM))
+  {
+    /* HMAC creation */
+    GenHmac(&ioCtx, subKeys);
+
+    /* HMAC validation */
+    if (!VALIDATEMAC(fh.mCtx.buff32, ioCtx.mCtx.buff32))
+    {
+      res = AESIO_ERR_MACNOTMATCH;
+      goto cleanup;
+    }
+  }
+
+  /* Decrypt */
+  if ((res = AesDecrypt(&ioCtx, subKeys, fh.mCtx.buff32, aad, aadSz)) != AESIO_ERR_OK)
+  {
+    goto cleanup;
+  }
+
+  /* Writes decrypted data to a file */
+  res = AesioWriteFile(&ioCtx, FALSE, destPath);
+
+cleanup:
+  /* Wipe variables */
+  memset(sk, 0, AES_MAX_SUBKEYS_SIZE);
+  memset(&fh, 0, sizeof(AESIO_FILEINFO));
+  /* Release AESIO context */
+  ReleaseAesioContext(&ioCtx, TRUE);
   return res;
 }
 

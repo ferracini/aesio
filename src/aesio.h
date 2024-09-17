@@ -12,6 +12,9 @@
 #endif // !FALSE
 #endif // !TRUE
 
+/* AESIO version.                                                     */
+#define AESIO_STR_VER             "1.01"
+
 /* Comment the line below if you do not want to use password padding. */
 #define AESIO_USEPWDPADDING
 
@@ -62,13 +65,13 @@
 #define GETFILEHEADERSIZE(flags)  (GETIVECSIZE(flags) + GETMACSIZE(flags) + sizeof(AESIO_INFOHEADER))
 #define GETKEYBLOCKSIZE(moFlags)  ((((moFlags & AESIO_BMASK_KL) >> 7) / CHAR_BIT) * sizeof(uint8_t))
 #define VALIDATEMAC(hmac1, hmac2) (hmac1[0] == hmac2[0] &&\
-                   hmac1[1] == hmac2[1] &&\
-                   hmac1[2] == hmac2[2] &&\
-                   hmac1[3] == hmac2[3] &&\
-                   hmac1[4] == hmac2[4] &&\
-                   hmac1[5] == hmac2[5] &&\
-                   hmac1[6] == hmac2[6] &&\
-                   hmac1[7] == hmac2[7])
+                                   hmac1[1] == hmac2[1] &&\
+                                   hmac1[2] == hmac2[2] &&\
+                                   hmac1[3] == hmac2[3] &&\
+                                   hmac1[4] == hmac2[4] &&\
+                                   hmac1[5] == hmac2[5] &&\
+                                   hmac1[6] == hmac2[6] &&\
+                                   hmac1[7] == hmac2[7])
 
 /* AESIO error messages */
 typedef enum AesioErrorMessage
@@ -80,6 +83,7 @@ typedef enum AesioErrorMessage
   AESIO_ERR_INVALIDKEYSIZE,         /* Invalid key size.                */  
   AESIO_ERR_OUTOFMEMORY,            /* Out of memory.                   */
   AESIO_ERR_READFAILED,             /* Read failed.                     */
+  AESIO_ERR_INVALIDINPUT,           /* Invalid input.                   */
   AESIO_ERR_WRITEFAILED,            /* Write failed.                    */
   AESIO_ERR_RANDFAILED,             /* Random number generation failed. */
   AESIO_ERR_MACNOTMATCH,            /* MAC not match.                   */
@@ -152,6 +156,24 @@ AesioCode AesioEncryptFile(
   const uint64_t aadSz,   /* Additional authenticated data size, in bytes.    */
   const int moFlags);     /* AESIO option bit flags.                          */  
 
+/* Encrypts a file into a buffer.
+ *
+ * If the function succeeds, the return value is AESIO_ERR_OK.
+ *
+ * Remarks:
+ * This function uses malloc to allocate the buffer that will contain the encrypted data.
+ */
+AesioCode AesioEncryptFileToBuffer(
+  char** ppBuffer,        /* Pointer that receives a pointer to dynamically allocated memory. */
+  size_t* pSzBufferSize,  /* Output buffer size, in bytes.                                    */
+  const char* srcPath,    /* Source path.                                                     */
+  const char* pwd,        /* User password.                                                   */
+  const size_t pwdLen,    /* Password length.                                                 */
+  uint32_t* subKeys,      /* Key schedule pointer.                                            */
+  const uint8_t* aad,     /* Additional authenticated data for GCM mode.                      */
+  const uint64_t aadSz,   /* Additional authenticated data size, in bytes.                    */
+  const int moFlags);     /* AESIO option bit flags.                                          */
+
 /* Encrypts a file. 
  *
  * If the function succeeds, the return value is AESIO_ERR_OK.
@@ -221,6 +243,44 @@ AesioCode AesioEncryptData(
   uint8_t* aad,           /* Additional authenticated data for GCM mode.      */
   const uint64_t aadSz);  /* Additional authenticated data size in bytes.     */
 
+/* Encrypts raw data into a file.
+ *
+ * If the function succeeds, the return value is AESIO_ERR_OK.
+ *
+ * Remarks:
+ * The subKeys pointer can be NULL.
+*/
+AesioCode AesioEncryptDataToFile(
+  const char* destPath,   /* Destination path.                                */
+  const char* pData,      /* Pointer to a raw data buffer.                    */
+  const size_t szData,    /* Buffer size.                                     */
+  const char* pwd,        /* User password.                                   */
+  const size_t pwdLen,    /* Password length.                                 */
+  uint32_t* subKeys,      /* Key schedule pointer.                            */
+  uint8_t* aad,           /* Additional authenticated data for GCM mode.      */
+  const uint64_t aadSz,   /* Additional authenticated data size, in bytes.    */
+  const int moFlags);     /* AESIO option bit flags.                          */
+
+/* Encrypts raw data into a buffer.
+ *
+ * If the function succeeds, the return value is AESIO_ERR_OK.
+ *
+ * Remarks:
+ * The subKeys pointer can be NULL.
+ * This function uses malloc to allocate the buffer that will contain the encrypted data.
+*/
+AesioCode AesioEncryptDataToBuffer(
+  char** ppBuffer,        /* Pointer that receives a pointer to dynamically allocated memory. */
+  size_t* pSzMem,         /* Output buffer size, in bytes.                                    */
+  const char* pData,      /* Pointer to a raw data buffer.                                    */
+  const size_t szData,    /* Buffer size.                                                     */
+  const char* pwd,        /* User password.                                                   */
+  const size_t pwdLen,    /* Password length.                                                 */
+  uint32_t* subKeys,      /* Key schedule pointer.                                            */
+  uint8_t* aad,           /* Additional authenticated data for GCM mode.                      */
+  const uint64_t aadSz,   /* Additional authenticated data size, in bytes.                    */
+  const int moFlags);     /* AESIO option bit flags.                                          */
+
 /* Dencrypts raw data.
  *
  * If the function succeeds, the return value is AESIO_ERR_OK.
@@ -237,6 +297,23 @@ AesioCode AesioDecryptData(
   size_t pwdLen,          /* Password length.                                   */
   uint8_t* aad,           /* Additional authenticated data (only for GCM mode). */    
   const uint64_t aadSz);  /* Additional authenticated data size in bytes.       */
+
+/* Decrypts data into a file.
+ *
+ * If the function succeeds, the return value is AESIO_ERR_OK.
+ *
+ * Remarks:
+ * This function uses malloc to allocate the buffer that will contain the decrypted data.
+*/
+AesioCode AesioDecryptDataToFile(
+  const char* destPath,   /* Destination path.                                          */
+  const char* pData,      /* Pointer to a buffer that will contain the encrypted data.  */
+  const size_t szData,    /* Buffer size.                                               */
+  const char* pwd,        /* User password.                                             */
+  const size_t pwdLen,    /* Password length.                                           */
+  uint32_t* subKeys,      /* Key schedule pointer.                                      */
+  uint8_t* aad,           /* Additional authenticated data for GCM mode.                */
+  const uint64_t aadSz);  /* Additional authenticated data size, in bytes.              */
 
 /* Initializes AESIO context.
  *
