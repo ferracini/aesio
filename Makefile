@@ -2,10 +2,10 @@ SRCDIR = src
 ODIR = build
 BINDIR = bin
 
-_DEPS = sha1.h sha256.h aes.h aesiofver.h aesom.h helper.h aesio.h
+_DEPS = sha1.h sha256.h minbase64.h aes.h aesiofver.h aesom.h helper.h aesio.h
 DEPS = $(patsubst %,$(SRCDIR)/%,$(_DEPS))
 
-_OBJ = sha1.o sha256.o aes.o aesom.o aesio.o tests.o
+_OBJ = sha1.o sha256.o minbase64.o aes.o aesom.o aesio.o aesiocli.o
 OBJ = $(patsubst %,$(ODIR)/%,$(_OBJ))
 
 # Specify compiler
