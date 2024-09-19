@@ -47,7 +47,7 @@ jobs:
           config: Release,
           platform: x86,
           dirbin: bin,
-          filename: ./aesio,
+          filename: aesio,
           }
     steps:
     - uses: actions/checkout@v4
@@ -69,6 +69,6 @@ jobs:
       uses: actions/upload-artifact@v4
       with: 
         name: aesio_cli-${{ matrix.config.platform }}-${{ runner.os }}
-        path: ${{ matrix.config.dirbin }}/**
+        path: ${{ matrix.config.dirbin }}/${{ matrix.config.filename }}
         if-no-files-found: error
         retention-days: 90
