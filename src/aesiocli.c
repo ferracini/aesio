@@ -594,12 +594,14 @@ _Bool ReadPasswordFromFile(
   {
     fclose(pFile);
     printf("The password file is empty: %s\n", pPasswordFilePath);
+    return FALSE;
   }
 
   if(stat.st_size > CLI_PASSWORD_MAX_LENGTH)
   {
     fclose(pFile);
     printf("The password exceeds the maximum allowed length of %d characters.\n", CLI_PASSWORD_MAX_LENGTH);
+    return FALSE;
   }
 
   if(fread(pPassword, sizeof(char), stat.st_size, pFile) != stat.st_size)
@@ -740,7 +742,7 @@ _Bool GetPassword(
 
   if(pPasswordFilePath != NULL)
   {
-    return ReadPasswordFromFile(pPassword, pPasswordFilePath);
+    return ReadPasswordFromFile(pPassword, pPasswordFilePath) && IsPasswordValid(pPassword);
   }
 
   if(!PromptUserPassword(pPassword, szPassword, CLI_PROMPT_PASSWORD))
@@ -748,14 +750,14 @@ _Bool GetPassword(
     return FALSE;
   }
 
+  if(!IsPasswordValid(pPassword))
+  {
+    return FALSE;
+  }
+
   if(bConfirmPassword)
   {
-    if(!PromptUserPassword(retypedPassword, sizeof(retypedPassword), CLI_PROMPT_CONFIRM_PASSWORD))
-    {
-      memset(retypedPassword, '\0', sizeof(retypedPassword));
-      return FALSE;
-    }
-
+    PromptUserPassword(retypedPassword, sizeof(retypedPassword), CLI_PROMPT_CONFIRM_PASSWORD);
     if(strcmp(pPassword, retypedPassword) != 0)
     {
       memset(pPassword, '\0', szPassword);
@@ -1116,12 +1118,6 @@ int EncryptAction(CLI_INPUT* pInput)
     return 1;
   }
 
-  if(!IsPasswordValid(password))
-  {
-    memset(password, '\0', sizeof(password));
-    return 1;
-  }
-
   if(pInput->m_pSourcePath != NULL)
   {
     if(pInput->m_pDestinationPath != NULL)
@@ -1348,11 +1344,6 @@ int DecryptAction(CLI_INPUT* pInput)
   int res = 1;
 
   if(!GetPassword(password, sizeof(password), pInput->m_pPasswordFilePath, FALSE))
-  {
-    return 1;
-  }
-
-  if(!IsPasswordValid(password))
   {
     return 1;
   }
