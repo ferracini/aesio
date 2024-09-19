@@ -1,0 +1,74 @@
+name: AESIO-CLI Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {
+          name: "VS2022 - x86 | Release",
+          os: windows-latest,
+          config: Release,
+          platform: x86,
+          dirbin: msvc/vs2022/Release,
+          filename: aesio.exe,
+          }
+          - {
+          name: "VS2022 - x86 | Debug",
+          os: windows-latest,
+          config: Debug,
+          platform: x86,
+          dirbin: msvc/vs2022/Debug,
+          filename: aesio.exe,
+          }
+          - {
+          name: "VS2022 - x64 | Release",
+          os: windows-latest,
+          config: Release,
+          platform: x64,
+          dirbin: msvc/vs2022/x64/Release,
+          filename: aesio.exe,
+          }
+          - {
+          name: "VS2022 - x64 | Debug",
+          os: windows-latest,
+          config: Debug,
+          platform: x64,
+          dirbin: msvc/vs2022/x64/Debug,
+          filename: aesio.exe,
+          }
+          - {
+          name: "GCC (make) - x86 | Release",
+          os: ubuntu-latest,
+          config: Release,
+          platform: x86,
+          dirbin: bin,
+          filename: ./aesio,
+          }
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Add msbuild to PATH
+      if: runner.os == 'Windows'
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build on Visual Studio 2022
+      if: runner.os == 'Windows'
+      run: msbuild msvc/vs2022/aesio.sln /p:Configuration=${{ matrix.config.config }} /p:Platform=${{ matrix.config.platform }}
+
+    - name: Build on GCC 
+      if: runner.os == 'Linux'
+      run: make
+
+    - name: Upload Build Artifact
+      if: matrix.config.config == 'Release'
+      uses: actions/upload-artifact@v4
+      with: 
+        name: aesio_cli-${{ matrix.config.platform }}-${{ runner.os }}
+        path: ${{ matrix.config.dirbin }}/**
+        if-no-files-found: error
+        retention-days: 90
