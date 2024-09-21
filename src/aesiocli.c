@@ -597,19 +597,21 @@ _Bool ReadPasswordFromFile(
     return FALSE;
   }
 
-  if(stat.st_size > CLI_PASSWORD_MAX_LENGTH)
+  if(stat.st_size - 1 > CLI_PASSWORD_MAX_LENGTH)
   {
     fclose(pFile);
     printf("The password exceeds the maximum allowed length of %d characters.\n", CLI_PASSWORD_MAX_LENGTH);
     return FALSE;
   }
 
-  if(fread(pPassword, sizeof(char), stat.st_size, pFile) != stat.st_size)
+  if(fgets(pPassword, sizeof(char) * stat.st_size, pFile) == NULL)
   {
     fclose(pFile);
     printf("File read failed: %s\n", pPasswordFilePath);
     return FALSE;
   }
+
+  pPassword[strcspn(pPassword, "\n")] = 0;
 
   fclose(pFile);
   return TRUE;
@@ -714,7 +716,7 @@ _Bool PromptUserPassword(
       res = FALSE;
     }
 
-    if(passwordLength > 0 && passwordLength < szPassword - CLI_PASSWORD_EXTRA_CHARS)
+    if(passwordLength > 0)
     {
       pPassword[passwordLength - 1] = '\0';
       passwordLength--;
