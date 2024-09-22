@@ -804,7 +804,7 @@ _Bool IsEncryptActionValid(const CLI_INPUT* pInput)
     return FALSE;
   }
 
-  if(pInput->m_pString != NULL && strlen(pInput->m_pString) < 16)
+  if((pInput->m_bAesioFlags & AESIO_MO_ECB) != 0 && pInput->m_pString != NULL && strlen(pInput->m_pString) < 16)
   {
     printf("ECB mode requires a string of at least 16 characters for encryption.\n");
     return FALSE;
