@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AESIOFVER_H
+#define AESIOFVER_H
 #include <stdint.h>
 
 /* AESIO file signature. */
@@ -15,3 +16,4 @@
 
 /* Compares the file version number against those supported by API. */
 #define FVERCMP(ver)          (AESIO_FILEVERSION - ver)
+#endif

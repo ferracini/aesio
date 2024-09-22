@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SHA1_H
+#define SHA1_H
 #include <limits.h>
 #include "stdint.h"
 #ifdef __GNUC__
@@ -44,3 +45,4 @@ int Sha1StreamCat(
   FILE* data2, 
   size_t data1Sz,
   size_t data2Sz);
+#endif

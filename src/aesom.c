@@ -669,7 +669,7 @@ AesCode GHash(
   AesEncryptBlock(t0.buff32, subKeys, subKeysCount, nRounds);
   AesEncryptBlock(hKey.buff32, subKeys, subKeysCount, nRounds);
 
-  memcpy(adTmp.buff32, ad, AES_BLOCKSIZE);
+  memcpy(adTmp.buff32, ad, min(lAdBlockSz, AES_BLOCKSIZE));
   GcmMul(_mm_load_si128((__m128i const*) & adTmp.buff32), _mm_load_si128((__m128i const*) & hKey.buff32), (__m128i*)tagCmp.buff32);
 
   for (size_t i = 1; i < adSz / AES_BLOCKSIZE; i++)

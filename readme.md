@@ -1,9 +1,5 @@
 # AESIO API
 
-<p align="center">
-  <span>English</span> | <a href="https://github.com/ferracini/AESIO/blob/master/readme.pt-br.md">Brazilian Portuguese</a>
-</p>
-
 AESIO API is an implementation written in C of the Advanced Encryption Standard (AES) for encryption and decryption of files and raw data.
 
 ## Operation modes
@@ -18,6 +14,9 @@ AESIO API is an implementation written in C of the Advanced Encryption Standard 
 
 + Galois/Counter Mode (GCM)\
 ```AESIO_MO_GCM```
+
+### Ciphertext Stealing (CTS)
+No padding is applied to the message blocks in ECB and CBC modes; instead, CTS method is used by default.
 
 ## Key sizes supported
 + 128 bits\
@@ -40,12 +39,34 @@ AESIO API is an implementation written in C of the Advanced Encryption Standard 
 None.\
 GMAC will be automatically generated if the ```AESIO_MO_GCM``` flag is set.
 
-## Ciphertext Stealing (CTS)
-No padding is applied  to the message blocks in ECB and CBC modes, instead CTS method is used by default.
+## AESIO-CLI
+The AESIO Command Line Interface is a tool that allows you to use AESIO for encrypting data.
 
-## Usage
+### Compile
 
-### AESIO basic interface
+```sh
+make
+```
+
+### Usage mode
+#### Options
+| Option                  | Argument        | Description                                                                 |
+|-------------------------|-----------------|-----------------------------------------------------------------------------|
+| `-e, --encrypt`          |                 | Indicates that the input data will be encrypted.                            |
+| `-d, --decrypt`          |                 | Indicates that the input data will be decrypted.                            |
+| `-k, --string`           | `<STRING>`      | Encrypt or decrypt a string.                                                |
+| `-i, --source-path`      | `<PATH>`        | Source file path.                                                           |
+| `-o, --destination-path` | `<PATH>`        | Destination file path.                                                      |
+| `-a, --aad`              | `<DATA>`        | Additional authenticated data (only for GCM).                               |
+| `-b, --base64`           |                 | Encode or decode in Base64 format.                                          |
+| `-l, --key-length`       | `<LENGTH>`      | Key length: 128, 192, or 256. (Default: 256)                                |
+| `-h, --hmac-sha`         | `<SHAX>`        | HMAC hash function: SHA1 or SHA2. (Default: SHA2)                           |
+| `-m, --operation-mode`   | `<OPMODE>`      | Operation mode: ECB, CBC, CTR or GCM. (Default: CTR)                        |
+| `-r, --delete-input-file`|                 | Delete input file after encrypting or decrypting.                           |
+| `-p, --password-path`    | `<PATH>`        | Password file path.                                                         |
+| `-v, --version`          |                 | Displays the AESIO version.                                                 |
+
+### AESIO API functions
 ```C
 /* Encrypts a file. 
  *
@@ -64,6 +85,24 @@ AesioCode AesioEncryptFile(
   uint8_t* ad,          /* Additional data for GCM mode.                    */
   const uint64_t adSz,  /* Additional data size, in bytes.                  */
   const int moFlags);   /* AESIO option bit flags.                          */  
+
+/* Encrypts a file into a buffer.
+ *
+ * If the function succeeds, the return value is AESIO_ERR_OK.
+ *
+ * Remarks:
+ * This function uses malloc to allocate the buffer that will contain the encrypted data.
+ */
+AesioCode AesioEncryptFileToBuffer(
+  char** ppBuffer,        /* Pointer that receives a pointer to dynamically allocated memory. */
+  size_t* pSzBufferSize,  /* Output buffer size, in bytes.                                    */
+  const char* srcPath,    /* Source path.                                                     */
+  const char* pwd,        /* User password.                                                   */
+  const size_t pwdLen,    /* Password length.                                                 */
+  uint32_t* subKeys,      /* Key schedule pointer.                                            */
+  const uint8_t* aad,     /* Additional authenticated data for GCM mode.                      */
+  const uint64_t aadSz,   /* Additional authenticated data size, in bytes.                    */
+  const int moFlags);     /* AESIO option bit flags.                                          */
 
 /* Encrypts a file. 
  *
@@ -134,6 +173,44 @@ AesioCode AesioEncryptData(
   uint8_t* ad,          /* Additional data for GCM mode.                    */
   const uint64_t adSz); /* Additional data size in bytes.                   */
 
+/* Encrypts raw data into a file.
+ *
+ * If the function succeeds, the return value is AESIO_ERR_OK.
+ *
+ * Remarks:
+ * The subKeys pointer can be NULL.
+*/
+AesioCode AesioEncryptDataToFile(
+  const char* destPath,   /* Destination path.                              */
+  const char* pData,      /* Pointer to a raw data buffer.                  */
+  const size_t szData,    /* Buffer size.                                   */
+  const char* pwd,        /* User password.                                 */
+  const size_t pwdLen,    /* Password length.                               */
+  uint32_t* subKeys,      /* Key schedule pointer.                          */
+  uint8_t* aad,           /* Additional authenticated data for GCM mode.    */
+  const uint64_t aadSz,   /* Additional authenticated data size, in bytes.  */
+  const int moFlags);     /* AESIO option bit flags.                        */
+
+/* Encrypts raw data into a buffer.
+ *
+ * If the function succeeds, the return value is AESIO_ERR_OK.
+ *
+ * Remarks:
+ * The subKeys pointer can be NULL.
+ * This function uses malloc to allocate the buffer that will contain the encrypted data.
+*/
+AesioCode AesioEncryptDataToBuffer(
+  char** ppBuffer,        /* Pointer that receives a pointer to dynamically allocated memory. */
+  size_t* pSzMem,         /* Output buffer size, in bytes.                                    */
+  const char* pData,      /* Pointer to a raw data buffer.                                    */
+  const size_t szData,    /* Buffer size.                                                     */
+  const char* pwd,        /* User password.                                                   */
+  const size_t pwdLen,    /* Password length.                                                 */
+  uint32_t* subKeys,      /* Key schedule pointer.                                            */
+  uint8_t* aad,           /* Additional authenticated data for GCM mode.                      */
+  const uint64_t aadSz,   /* Additional authenticated data size, in bytes.                    */
+  const int moFlags);     /* AESIO option bit flags.                                          */
+
 /* Dencrypts raw data.
  *
  * If the function succeeds, the return value is AESIO_ERR_OK.
@@ -150,6 +227,23 @@ AesioCode AesioDecryptData(
   size_t pwdLen,        /* Password length.                                 */
   uint8_t* ad,          /* Additional data (only for GCM mode).             */    
   const uint64_t adSz); /* Additional data size in bytes.                   */
+
+/* Decrypts data into a file.
+ *
+ * If the function succeeds, the return value is AESIO_ERR_OK.
+ *
+ * Remarks:
+ * This function uses malloc to allocate the buffer that will contain the decrypted data.
+*/
+AesioCode AesioDecryptDataToFile(
+  const char* destPath,   /* Destination path.                                          */
+  const char* pData,      /* Pointer to a buffer that will contain the encrypted data.  */
+  const size_t szData,    /* Buffer size.                                               */
+  const char* pwd,        /* User password.                                             */
+  const size_t pwdLen,    /* Password length.                                           */
+  uint32_t* subKeys,      /* Key schedule pointer.                                      */
+  uint8_t* aad,           /* Additional authenticated data for GCM mode.                */
+  const uint64_t aadSz);  /* Additional authenticated data size, in bytes.              */
 
 /* Initializes AESIO context.
  *
@@ -199,12 +293,6 @@ AesioCode KeySchedule(
   const size_t pwdSz,   /* Size of the password in bytes.                   */  
   size_t kBlockSize);   /* The size of the key in bytes.                    */
 ```
-### Compile
-
-```sh
-make
-```
-
 ## Dependencies
 
 + The code is written in standard C;
@@ -261,7 +349,6 @@ ReleaseAesioContext(&ioCtx, FALSE);
 memset(subKeys, 0, AESIO_128_KSZ);
 
 ```
-See the `/src/tests.c` file for more examples.
 
 
 ## Authors
@@ -272,7 +359,7 @@ See the `/src/tests.c` file for more examples.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> Copyright (c) 2019 Diego Ferracini Bando
+> Copyright (c) 2024 Diego Ferracini Bando
 > 
 > Permission is hereby granted, free of charge, to any person obtaining a copy
 > of this software and associated documentation files (the "Software"), to deal

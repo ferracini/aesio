@@ -1,4 +1,5 @@
-#pragma once
+#ifndef AESOM_H
+#define AESOM_H
 #include <stdio.h>
 #include "aes.h"
 
@@ -194,3 +195,4 @@ AesCode AesEcbDecryptStream(
 */
 void ReleaseAesContext(
   AES_CONTEXT* ctx);      /* Pointer to the AES context.                                        */
+#endif

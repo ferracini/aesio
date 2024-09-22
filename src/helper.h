@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HELPER_H
+#define HELPER_H
 #include <stdlib.h>
 #include <limits.h>
 
@@ -12,6 +13,8 @@
 #ifndef CHAR_BIT
 #define CHAR_BIT 8
 #endif
+#include <strings.h>
+#define _stricmp                strcasecmp
 #ifndef min
 #define min(a,b)                ( a < b ? a : b )
 #endif
@@ -20,4 +23,8 @@
 #endif
 #define _ROTL(_Value, _Shift)   ((_Value << (_Shift % 32)) | (_Value >> ((32 - _Shift) % 32)))
 #define _ROTR(_Value, _Shift)   ((_Value >> (_Shift % 32)) | (_Value << ((32 - _Shift) % 32)))
+#endif
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(arr)         (sizeof(arr) / sizeof((arr)[0]))
+#endif
 #endif

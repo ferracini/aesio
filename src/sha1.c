@@ -194,7 +194,7 @@ void Sha1Final(
 
   for (i = 0; i < 2; i++)
   {
-    uint32_t t = context->count[i];
+    size_t t = context->count[i];
 
     for (int j = 0; j < 4; t >>= 8, j++)
     {

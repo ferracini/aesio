@@ -1,19 +1,20 @@
-#pragma once
+#ifndef AES_H
+#define AES_H
 #include <stdint.h>
 #include <limits.h>
 #ifdef __GNUC__
 #include <stddef.h>
 #endif
 
-#define AES_BLOCKSIZE           (128 / CHAR_BIT)                    /* AES block size, in bytes. */
-#define AES_BLOCKLEN            (AES_BLOCKSIZE / sizeof(uint32_t))  /* AES block length.         */
+#define AES_BLOCKSIZE           (128 / CHAR_BIT)                            /* AES block size, in bytes.          */
+#define AES_BLOCKLEN            (AES_BLOCKSIZE / sizeof(uint32_t))          /* AES block length.                  */
 
-#define AES_128_KBLOCKSIZE      (sizeof(uint32_t) * 4)  /* AES-128 key block size, in bytes.  */
-#define AES_128_SUBKEYS_COUNT   44                      /* AES-128 subkeys count.             */
-#define AES_192_KBLOCKSIZE      (sizeof(uint32_t) * 6)  /* AES-192 key block size, in bytes.  */
-#define AES_192_SUBKEYS_COUNT   52                      /* AES-192 subkeys count.             */
-#define AES_256_KBLOCKSIZE      (sizeof(uint32_t) * 8)  /* AES-256 key block size, in bytes.  */
-#define AES_256_SUBKEYS_COUNT   60                      /* AES-256 subkeys count.             */
+#define AES_128_KBLOCKSIZE      (sizeof(uint32_t) * 4)                      /* AES-128 key block size, in bytes.  */
+#define AES_128_SUBKEYS_COUNT   44                                          /* AES-128 subkeys count.             */
+#define AES_192_KBLOCKSIZE      (sizeof(uint32_t) * 6)                      /* AES-192 key block size, in bytes.  */
+#define AES_192_SUBKEYS_COUNT   52                                          /* AES-192 subkeys count.             */
+#define AES_256_KBLOCKSIZE      (sizeof(uint32_t) * 8)                      /* AES-256 key block size, in bytes.  */
+#define AES_256_SUBKEYS_COUNT   60                                          /* AES-256 subkeys count.             */
 
 #define AES_MAX_SUBKEYS_COUNT   AES_256_SUBKEYS_COUNT                       /* AES max subkeys count.             */
 #define AES_MAX_SUBKEYS_SIZE    (sizeof(uint32_t) * AES_MAX_SUBKEYS_COUNT)  /* AES max subkeys size, in bytes.    */
@@ -67,3 +68,4 @@ void AesDecryptBlock(
   uint32_t* subKeys, 
   const size_t subKeysCount, 
   const size_t nRounds);
+  #endif

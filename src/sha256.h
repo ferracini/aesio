@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SHA2_H
+#define SHA2_H
 #include <stdio.h>
 #include <limits.h>
 #include <stdint.h>
@@ -66,3 +67,4 @@ int Sha256StreamCat(
   FILE* data2, 
   const size_t data1Sz,
   const size_t data2Sz);
+#endif
