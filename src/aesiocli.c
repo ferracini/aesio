@@ -5,6 +5,9 @@
 #if defined(_MSC_VER)
 #include <conio.h>
 #define FILENO(file)                (_fileno(file))
+#include <io.h>
+#define F_OK 0
+#define access _access
 #else
 #include <termios.h>
 #include <fcntl.h>
@@ -106,6 +109,8 @@ _Bool GetPassword(
   const char* pPasswordFilePath,
   const _Bool bConfirmPassword);
 _Bool IsPasswordValid(const char* pPassword);
+_Bool FileExists(const char* pPath);
+_Bool IsECBValid(const CLI_INPUT* pInput);
 _Bool IsEncryptActionValid(const CLI_INPUT* pInput);
 _Bool IsDecryptActionValid(const CLI_INPUT* pInput);
 _Bool IsVersionRequested(const CLI_INPUT* pInput);
@@ -790,6 +795,57 @@ _Bool IsPasswordValid(const char* pPassword)
   return TRUE;
 }
 
+_Bool FileExists(const char* pPath)
+{
+  return (access(pPath, F_OK) == 0);
+}
+
+_Bool IsECBValid(const CLI_INPUT* pInput)
+{
+  FILE* pFile;
+  struct stat stat;
+  
+  if(pInput->m_pString != NULL)
+  {
+    if(strlen(pInput->m_pString) < 16)
+    {
+      printf("ECB mode requires a string of at least 16 characters for encryption.\n");
+      return FALSE;
+    }
+
+    return TRUE;
+  }
+
+#if defined (_MSC_VER)
+  fopen_s(&pFile, pInput->m_pSourcePath, "r");
+#else
+  pFile = fopen(pInput->m_pSourcePath, "r");
+#endif
+
+  if(pFile == NULL)
+  {
+    printf("Unable to open file: %s\n", pInput->m_pSourcePath);
+    return FALSE;
+  }
+
+  if(fstat(FILENO(pFile), &stat) != 0)
+  {
+    fclose(pFile);
+    printf("File read failed: %s\n", pInput->m_pSourcePath);
+    return FALSE;
+  }
+
+  fclose(pFile);
+
+  if(stat.st_size < 16)
+  {
+    printf("ECB mode requires a file of at least 16 bytes for encryption.\n");
+    return FALSE;
+  }
+  
+  return TRUE;
+}
+
 _Bool IsEncryptActionValid(const CLI_INPUT* pInput)
 {
   if(pInput->m_pSourcePath == NULL && pInput->m_pString == NULL)
@@ -804,9 +860,14 @@ _Bool IsEncryptActionValid(const CLI_INPUT* pInput)
     return FALSE;
   }
 
-  if((pInput->m_bAesioFlags & AESIO_MO_ECB) != 0 && pInput->m_pString != NULL && strlen(pInput->m_pString) < 16)
+  if(pInput->m_pSourcePath != NULL && !FileExists(pInput->m_pSourcePath))
   {
-    printf("ECB mode requires a string of at least 16 characters for encryption.\n");
+    printf("File not found: %s\n", pInput->m_pSourcePath);
+    return FALSE;
+  }
+
+  if((pInput->m_bAesioFlags & AESIO_MO_ECB) != 0 && !IsECBValid(pInput))
+  {
     return FALSE;
   }
   
@@ -834,6 +895,12 @@ _Bool IsDecryptActionValid(const CLI_INPUT* pInput)
   if(pInput->m_pString != NULL && !pInput->m_base64)
   {
     printf("You must specify the Base64 option and ensure the string is in Base64 format to decrypt.\n");
+    return FALSE;
+  }
+
+  if(pInput->m_pSourcePath != NULL && !FileExists(pInput->m_pSourcePath))
+  {
+    printf("File not found: %s\n", pInput->m_pSourcePath);
     return FALSE;
   }
 
