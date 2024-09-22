@@ -229,11 +229,6 @@ _Bool SetEcrypt(CLI_INPUT* pInput, const char* const pAttribute)
     printf("You must specify either the encryption or decryption option.\n");
     return FALSE;
   }
-  else if(pInput->m_pString != NULL)
-  {
-    printf("You must specify either a string or a file path as input.\n");
-    return FALSE;
-  }
 
   pInput->m_actionType = OPT_ACTION_ENCRYPT;
   return TRUE;
@@ -273,6 +268,11 @@ _Bool SetSourcePath(CLI_INPUT* pInput, const char* const pAttribute)
   if(pAttribute == NULL)
   {
     printf("Invalid syntax.\nThe source path must be specified.\n");
+    return FALSE;
+  }
+  else if(pInput->m_pString != NULL)
+  {
+    printf("You must specify either a string or a file path as input.\n");
     return FALSE;
   }
 
@@ -556,6 +556,11 @@ uint32_t SetDefaultAesioFlags(CLI_INPUT* pInput)
     }
   }
 
+  if(pInput->m_pAAD == NULL)
+  {
+    pInput->m_pAAD = "";
+  }
+
   return pInput->m_bAesioFlags;
 }
 
@@ -799,9 +804,15 @@ _Bool IsEncryptActionValid(const CLI_INPUT* pInput)
     return FALSE;
 
   }
+  
   if(pInput->m_pString != NULL && pInput->m_deleteInput)
   {
     printf("Warning: The delete input file option is ignored when encrypting a string.\n");
+  }
+
+  if((pInput->m_bAesioFlags & AESIO_MO_GCM) == 0 && pInput->m_pAAD != NULL)
+  {
+    printf("Warning: Additional authenticated data (AAD) is ignored for operation modes other than GCM.\n");
   }
 
   return TRUE;
@@ -892,7 +903,7 @@ int EncryptFileToFile(
                            strlen(pPassword),
                            NULL,
                            (uint8_t*)(pInput->m_pAAD),
-                           pInput->m_pAAD != NULL ? strlen(pInput->m_pAAD) : 0,
+                           strlen(pInput->m_pAAD),
                            pInput->m_bAesioFlags);
     
     return HandleAesioError(res);    
@@ -905,7 +916,7 @@ int EncryptFileToFile(
                                  strlen(pPassword),
                                  NULL,
                                  (uint8_t*)(pInput->m_pAAD),
-                                 pInput->m_pAAD != NULL ? strlen(pInput->m_pAAD) : 0,
+                                 strlen(pInput->m_pAAD),
                                  pInput->m_bAesioFlags);
 
   if(HandleAesioError(res) != 0)
@@ -967,7 +978,7 @@ int EncryptFileToString(
                                  strlen(pPassword),
                                  NULL,
                                  (uint8_t*)(pInput->m_pAAD),
-                                 pInput->m_pAAD != NULL ? strlen(pInput->m_pAAD) : 0,
+                                 strlen(pInput->m_pAAD),
                                  pInput->m_bAesioFlags);  
 
   if(HandleAesioError(res) != 0)
@@ -1009,7 +1020,7 @@ int EncryptStringToFile(
                                  strlen(pPassword),
                                  NULL,
                                  (uint8_t*)(pInput->m_pAAD),
-                                 pInput->m_pAAD != NULL ? strlen(pInput->m_pAAD) : 0,
+                                 strlen(pInput->m_pAAD),
                                  pInput->m_bAesioFlags);  
     
     return HandleAesioError(res);
@@ -1023,7 +1034,7 @@ int EncryptStringToFile(
                                  strlen(pPassword),
                                  NULL,
                                  (uint8_t*)(pInput->m_pAAD),
-                                 pInput->m_pAAD != NULL ? strlen(pInput->m_pAAD) : 0,
+                                 strlen(pInput->m_pAAD),
                                  pInput->m_bAesioFlags);
 
   if(HandleAesioError(res) != 0)
@@ -1087,7 +1098,7 @@ int EncryptStringToString(
                                  strlen(pPassword),
                                  NULL,
                                  (uint8_t*)(pInput->m_pAAD),
-                                 pInput->m_pAAD != NULL ? strlen(pInput->m_pAAD) : 0,
+                                 strlen(pInput->m_pAAD),
                                  pInput->m_bAesioFlags);
 
   if(HandleAesioError(res) != 0)
@@ -1211,7 +1222,7 @@ int DecryptFileToFile(
                            strlen(pPassword),
                            NULL,
                            (uint8_t*)(pInput->m_pAAD),
-                           pInput->m_pAAD != NULL ? strlen(pInput->m_pAAD) : 0);
+                           strlen(pInput->m_pAAD));
 
     return HandleAesioError(res);
   }
@@ -1285,7 +1296,7 @@ int DecryptFileToFile(
                                strlen(pPassword),
                                NULL,
                                (uint8_t*)(pInput->m_pAAD),
-                               pInput->m_pAAD != NULL ? strlen(pInput->m_pAAD) : 0);
+                               strlen(pInput->m_pAAD));
   
   free(pBuffer);  
   return HandleAesioError(res);
@@ -1308,7 +1319,7 @@ int DecryptStringToFile(
                                  strlen(pPassword),
                                  NULL,
                                  (uint8_t*)(pInput->m_pAAD),
-                                 pInput->m_pAAD != NULL ? strlen(pInput->m_pAAD) : 0);
+                                 strlen(pInput->m_pAAD));
 
     return HandleAesioError(res);
   }
@@ -1333,7 +1344,7 @@ int DecryptStringToFile(
                                strlen(pPassword),
                                NULL,
                                (uint8_t*)(pInput->m_pAAD),
-                               pInput->m_pAAD != NULL ? strlen(pInput->m_pAAD) : 0);
+                               strlen(pInput->m_pAAD));
 
   free(pBuffer);
   return HandleAesioError(res);
