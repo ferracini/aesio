@@ -802,7 +802,12 @@ _Bool IsEncryptActionValid(const CLI_INPUT* pInput)
   {
     printf("You must specify Base64 and/or destination file path option as output.\n");
     return FALSE;
+  }
 
+  if(pInput->m_pString != NULL && strlen(pInput->m_pString) < 16)
+  {
+    printf("ECB mode requires a string of at least 16 characters for encryption.\n");
+    return FALSE;
   }
   
   if(pInput->m_pString != NULL && pInput->m_deleteInput)
