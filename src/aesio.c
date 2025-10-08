@@ -661,7 +661,7 @@ AesioCode AesioOpenFile(
     }
   }
   
-  return AES_ERR_OK;
+  return AESIO_ERR_OK;
 }
 
 /* Writes the file header. */
