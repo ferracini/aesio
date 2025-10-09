@@ -1,20 +1,24 @@
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/stat.h>
 #if defined(_MSC_VER)
 #include <conio.h>
 #define FILENO(file)                (_fileno(file))
+#include <sys/stat.h>
+#define fstat                       _fstat64
+#define stat                        _stat64
 #include <io.h>
 #define F_OK 0
 #define access _access
 #else
+#define _FILE_OFFSET_BITS 64
+#include <sys/stat.h>
 #include <termios.h>
 #include <fcntl.h>
 #include <unistd.h>
 #define FILENO(file)                (fileno(file))
 #endif
 
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include "aesio.h"
 #include "minbase64.h"
 #include "helper.h"
@@ -575,6 +579,7 @@ _Bool ReadPasswordFromFile(
 {
   FILE *pFile;
   struct stat stat;
+  size_t szBuffer;
 
   if(pPasswordFilePath == NULL)
   {
@@ -607,14 +612,23 @@ _Bool ReadPasswordFromFile(
     return FALSE;
   }
 
-  if(stat.st_size - 1 > CLI_PASSWORD_MAX_LENGTH)
+  if (stat.st_size > SIZE_MAX)
+  {
+    fclose(pFile);
+    printf("The password file is too large: %s\n", pPasswordFilePath);
+    return FALSE;
+  }
+
+  szBuffer = (size_t)(stat.st_size);
+
+  if(szBuffer - 1 > CLI_PASSWORD_MAX_LENGTH)
   {
     fclose(pFile);
     printf("The password exceeds the maximum allowed length of %d characters.\n", CLI_PASSWORD_MAX_LENGTH);
     return FALSE;
   }
 
-  if(fgets(pPassword, sizeof(char) * stat.st_size, pFile) == NULL)
+  if(fgets(pPassword, (int)(sizeof(char) * szBuffer), pFile) == NULL)
   {
     fclose(pFile);
     printf("File read failed: %s\n", pPasswordFilePath);
@@ -1317,15 +1331,22 @@ int DecryptFileToFile(
     printf("File read failed: %s\n", pInput->m_pSourcePath);
     return 1;
   }
-
-  szBuffer = stat.st_size;
-  if(szBuffer == 0)
+   
+  if(stat.st_size == 0)
   {
     fclose(pFile);
     printf("The input file is empty: %s\n", pInput->m_pSourcePath);
     return 1;
   }
 
+  if (stat.st_size > SIZE_MAX)
+  {
+    fclose(pFile);
+    printf("The input file is too large: %s\n", pInput->m_pSourcePath);
+    return 1;
+  }
+
+  szBuffer = (size_t)(stat.st_size);
   pBuffer = malloc(szBuffer);
   if(pBuffer == NULL)
   {
@@ -1538,6 +1559,11 @@ int HandleAesioError(AesioCode res)
     case AESIO_ERR_INVALIDFILEVERSION:
     {
       printf("Aesio error: Invalid file version.\n");
+      return 1;
+    }
+    case AESIO_ERR_FILETOOLARGE:
+    {
+      printf("Aesio error: File too large.\n");
       return 1;
     }
     default:
