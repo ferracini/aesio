@@ -26,7 +26,7 @@
 /* ---------------------------------------------------------------------------------------------------------------------------------- */
 /* Constants.                                                                                                                         */
 
-#define CLI_STR_VER                 "1.00"
+#define CLI_STR_VER                 "1.00a"
 #define CLI_STR_AUTHOR              "Diego Ferracini Bando"
 #define CLI_STR_MIT                 "Free and open source software under the terms of the MIT license."
 
@@ -947,7 +947,7 @@ _Bool IsVersionRequested(const CLI_INPUT* pInput)
   {
     printf(" AESIO-CLI v" CLI_STR_VER " (API v" AESIO_STR_VER ")\n"
            " - " CLI_STR_MIT "\n"
-           " - (c) 2024 " CLI_STR_AUTHOR ".\n\n");
+           " - (c) 2025 " CLI_STR_AUTHOR ".\n\n");
   }
 
   return pInput->m_showVer;
