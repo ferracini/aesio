@@ -1,6 +1,3 @@
-#include "aesio.h"
-#include <string.h>
-#include <sys/stat.h>
 #ifdef _MSC_VER
 /* 
  * The rand_s function requires that constant _CRT_RAND_S
@@ -8,12 +5,20 @@
 */
 #define _CRT_RAND_S
 #define FILENO(file)  (_fileno(file))
+#include <sys/stat.h>
+#define fstat         _fstat64
+#define stat          _stat64
 #elif defined(__GNUC__)
+#define _FILE_OFFSET_BITS 64
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
 #define FILENO(file)  (fileno(file))
 #endif
+
 #include <stdlib.h>
+#include "aesio.h"
+#include <string.h>
 
 /* Constants for HMAC calculation. */
 #define IPAD  0x36
@@ -414,6 +419,7 @@ AesioCode AesioReadFile(
 {
   struct stat stat;
   FILE* file;    
+  size_t szBuffer;
 
   if (!path || !fh)
   {
@@ -436,6 +442,14 @@ AesioCode AesioReadFile(
     fclose(file);
     return AESIO_ERR_READFAILED;
   }
+
+  if (stat.st_size > SIZE_MAX)
+  {
+    fclose(file);
+    return AESIO_ERR_FILETOOLARGE;
+  }
+
+  szBuffer = (size_t)(stat.st_size);
 
   if (isEncrypted)
   {
@@ -486,7 +500,7 @@ AesioCode AesioReadFile(
       }
     }
     
-    fh->cSz = stat.st_size - GETFILEHEADERSIZE(fh->ih.bFlags);
+    fh->cSz = szBuffer - GETFILEHEADERSIZE(fh->ih.bFlags);
     
     if (!pFile)
     {
@@ -514,13 +528,13 @@ AesioCode AesioReadFile(
   {
     if (!pFile)
     {
-      if (!(fh->cBuff = malloc(stat.st_size)))
+      if (!(fh->cBuff = malloc(szBuffer)))
       {
         fclose(file);
         return AESIO_ERR_OUTOFMEMORY;
       }
 
-      if (fread(fh->cBuff, sizeof(uint8_t), stat.st_size, file) != stat.st_size)
+      if (fread(fh->cBuff, sizeof(uint8_t), szBuffer, file) != szBuffer)
       {
         free(fh->cBuff);
         memset(fh, 0, sizeof(AESIO_FILEINFO));
@@ -533,7 +547,7 @@ AesioCode AesioReadFile(
       fh->cBuff = NULL;
     }    
 
-    fh->cSz = stat.st_size;
+    fh->cSz = szBuffer;
   }
 
   if (!pFile)
@@ -661,7 +675,7 @@ AesioCode AesioOpenFile(
     }
   }
   
-  return AES_ERR_OK;
+  return AESIO_ERR_OK;
 }
 
 /* Writes the file header. */

@@ -89,7 +89,8 @@ typedef enum AesioErrorMessage
   AESIO_ERR_RANDFAILED,             /* Random number generation failed. */
   AESIO_ERR_MACNOTMATCH,            /* MAC not match.                   */
   AESIO_ERR_INVALIDFILESIGNATURE,   /* Invalid file signature.          */
-  AESIO_ERR_INVALIDFILEVERSION      /* Invalid file version.            */
+  AESIO_ERR_INVALIDFILEVERSION,     /* Invalid file version.            */
+  AESIO_ERR_FILETOOLARGE,           /* File is too large.               */
 }AesioCode;
 
 typedef struct _MAC_CONTEXT
